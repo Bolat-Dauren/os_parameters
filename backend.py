@@ -4,7 +4,6 @@ import platform
 import psutil
 import socket
 import time
-import os
 
 class ParameterRetrievalError(Exception):
     pass
@@ -22,8 +21,6 @@ class OSParametersBackend:
                 return self.get_disk_parameters()
             elif category == "Additional":
                 return self.get_additional_parameters()
-            elif category == "Environment Variables":
-                return self.get_environment_variables()
             else:
                 return {}
         except Exception as e:
@@ -71,9 +68,7 @@ class OSParametersBackend:
         additional_info = {
             "IP Address": self.get_ip_address(),
             "System Uptime (seconds)": self.get_system_uptime(),
-            "Running Processes": self.get_running_processes(),
             "System Architecture": platform.architecture()[0],
-            "Environment Variables": self.get_environment_variables(),
         }
         return additional_info
 
@@ -86,19 +81,3 @@ class OSParametersBackend:
         # Retrieve the system uptime
         uptime_seconds = time.time() - psutil.boot_time()
         return int(uptime_seconds)
-
-    def get_running_processes(self):
-        # Retrieve information about running processes
-        running_processes = []
-        for proc in psutil.process_iter(attrs=['pid', 'name', 'memory_percent']):
-            running_processes.append({
-                "PID": proc.info['pid'],
-                "Name": proc.info['name'],
-                "Memory Usage (%)": proc.info['memory_percent'],
-            })
-        return running_processes
-
-    def get_environment_variables(self):
-        # Retrieve environment variables
-        environment_vars = os.environ
-        return environment_vars
